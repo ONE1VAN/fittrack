@@ -74,7 +74,7 @@ class EquipmentScreen(Screen):
         report.bind(size=lambda *a: setattr(report, "text_size", report.size))
         c.add_widget(report)
 
-        if Session.role in ("admin", "maintenance", "head_trainer", "director"):
+        if Session.role == "admin":
             actions = BoxLayout(orientation="horizontal", spacing=8,
                                 size_hint_y=None, height=38, padding=[0, 4, 0, 0])
             actions.add_widget(Label())
@@ -96,7 +96,7 @@ class EquipmentScreen(Screen):
         info.bind(size=lambda *a: setattr(info, "text_size", info.size))
         row.add_widget(info)
         row.add_widget(StatusChip(status=e["status"]))
-        if Session.role in ("trainer", "admin", "maintenance"):
+        if Session.role in ("trainer", "admin"):
             btn = GhostButton(text="▲", size_hint_x=None, width=44, height=36)
             btn.bind(on_release=lambda *_, eid=e["eq_id"], name=e["name"]:
                      self._report_dialog(eid, name))

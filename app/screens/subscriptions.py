@@ -30,7 +30,7 @@ class SubscriptionsScreen(Screen):
         for t in SubscriptionRepo.types():
             content.add_widget(self._type_card(t))
 
-        if Session.role in ("admin", "head_trainer", "director", "accountant"):
+        if Session.role == "admin":
             content.add_widget(Label(text="[b]АКТИВНІ АБОНЕМЕНТИ[/b]", markup=True,
                                      color=theme.NEON_CYAN, font_size="13sp",
                                      size_hint_y=None, height=20,

@@ -8,7 +8,7 @@ PRAGMA foreign_keys = ON;
 ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS roles (
     role_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    role_name TEXT NOT NULL UNIQUE   -- admin, trainer, client, head_trainer, accountant, director, maintenance
+    role_name TEXT NOT NULL UNIQUE   -- admin, trainer, client
 );
 
 CREATE TABLE IF NOT EXISTS users (

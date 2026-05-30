@@ -54,7 +54,7 @@ class HomeTrainerScreen(Screen):
         a2 = BoxLayout(orientation="horizontal", spacing=10, size_hint_y=None, height=54)
         b3 = NeonButton(text="НОВЕ ЗАНЯТТЯ", height=48)
         b3.bind(on_release=self._new_class_dialog)
-        b4 = GhostButton(text="МОЇ ВІДЕО", height=48)
+        b4 = GhostButton(text="ВІДЕО", height=48)
         b4.bind(on_release=lambda *_: self.manager.go("video_feed"))
         a2.add_widget(b3)
         a2.add_widget(b4)

@@ -15,23 +15,15 @@ from ._layout import screen_shell
 
 
 ROLE_LABELS_UA = {
-    "admin":        "Адмін",
-    "trainer":      "Тренер",
-    "client":       "Клієнт",
-    "head_trainer": "Гол. тренер",
-    "accountant":   "Бухгалтер",
-    "director":     "Директор",
-    "maintenance":  "Технік",
+    "admin":   "Адмін",
+    "trainer": "Тренер",
+    "client":  "Клієнт",
 }
 
 ROLE_COLORS = {
-    "admin":        theme.NEON_MAGENTA,
-    "director":     theme.NEON_MAGENTA,
-    "head_trainer": theme.WARN_AMBER,
-    "trainer":      theme.NEON_CYAN,
-    "accountant":   theme.WARN_AMBER,
-    "maintenance":  theme.TEXT_SECONDARY,
-    "client":       theme.ENERGY_GREEN,
+    "admin":   theme.NEON_MAGENTA,
+    "trainer": theme.NEON_CYAN,
+    "client":  theme.ENERGY_GREEN,
 }
 
 

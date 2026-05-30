@@ -12,8 +12,7 @@ def _hash(pw: str) -> str:
 def seed_demo_data(conn) -> None:
     cur = conn.cursor()
 
-    roles = ["admin", "trainer", "client", "head_trainer",
-             "accountant", "director", "maintenance"]
+    roles = ["admin", "trainer", "client"]
     cur.executemany("INSERT INTO roles(role_name) VALUES (?)", [(r,) for r in roles])
     role_id = {r: i + 1 for i, r in enumerate(roles)}
 

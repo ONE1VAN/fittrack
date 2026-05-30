@@ -64,7 +64,7 @@ class LoginScreen(Screen):
         card.add_widget(login_btn)
 
         demo_hint = Label(
-            text="[i]Demo: admin@gym.ua / admin123\ncoach@gym.ua / coach123\nclient@gym.ua / client123[/i]",
+            text="[i]Demo: admin@gym.ua / admin123\n",
             markup=True, font_size="11sp", color=theme.TEXT_MUTED,
             size_hint_y=None, height=58, halign="center",
         )
