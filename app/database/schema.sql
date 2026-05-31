@@ -1,14 +1,9 @@
--- FitTrack — Normalized schema (3NF) for SQLite
--- All FKs explicit. m2m via composite PKs. Datetime as ISO-8601 TEXT.
 
 PRAGMA foreign_keys = ON;
 
-------------------------------------------------------------------------------
--- 1. ROLES & USERS
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS roles (
     role_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    role_name TEXT NOT NULL UNIQUE   -- admin, trainer, client
+    role_name TEXT NOT NULL UNIQUE  
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -19,20 +14,17 @@ CREATE TABLE IF NOT EXISTS users (
     full_name      TEXT NOT NULL,
     phone          TEXT,
     avatar_path    TEXT,
-    card_id_skud   TEXT UNIQUE,            -- RFID card for turnstile (clients only)
+    card_id_skud   TEXT UNIQUE,           
     created_at     TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE RESTRICT
 );
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_id);
 
-------------------------------------------------------------------------------
--- 2. SUBSCRIPTIONS
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS subscription_types (
     type_id            INTEGER PRIMARY KEY AUTOINCREMENT,
     name               TEXT NOT NULL UNIQUE,
-    duration_days      INTEGER NOT NULL,        -- 30/90/365
-    visit_limit        INTEGER,                 -- NULL = unlimited
+    duration_days      INTEGER NOT NULL,        
+    visit_limit        INTEGER,                
     price              REAL NOT NULL,
     freeze_days_allowed INTEGER NOT NULL DEFAULT 0
 );
@@ -43,8 +35,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     type_id           INTEGER NOT NULL,
     start_date        TEXT NOT NULL,
     end_date          TEXT NOT NULL,
-    balance           INTEGER,                  -- visits left; NULL for unlimited
-    status            TEXT NOT NULL DEFAULT 'active'  -- active|frozen|expired|cancelled
+    balance           INTEGER,                
+    status            TEXT NOT NULL DEFAULT 'active' 
                        CHECK (status IN ('active','frozen','expired','cancelled')),
     freeze_days_used  INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (client_id) REFERENCES users(user_id) ON DELETE CASCADE,
@@ -66,24 +58,18 @@ CREATE TABLE IF NOT EXISTS subscription_requests (
 );
 CREATE INDEX IF NOT EXISTS idx_subreq_status ON subscription_requests(status);
 
-------------------------------------------------------------------------------
--- 3. PAYMENTS
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS payments (
     pay_id      INTEGER PRIMARY KEY AUTOINCREMENT,
     client_id   INTEGER NOT NULL,
     sub_id      INTEGER,
     amount      REAL NOT NULL,
     paid_at     TEXT NOT NULL DEFAULT (datetime('now')),
-    pay_type    TEXT NOT NULL DEFAULT 'full'    -- full|partial|debt
+    pay_type    TEXT NOT NULL DEFAULT 'full'    
                  CHECK (pay_type IN ('full','partial','debt')),
     FOREIGN KEY (client_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (sub_id)    REFERENCES subscriptions(sub_id) ON DELETE SET NULL
 );
 
-------------------------------------------------------------------------------
--- 4. ROOMS / CLASSES / BOOKINGS
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS rooms (
     room_id  INTEGER PRIMARY KEY AUTOINCREMENT,
     name     TEXT NOT NULL UNIQUE,
@@ -92,7 +78,7 @@ CREATE TABLE IF NOT EXISTS rooms (
 
 CREATE TABLE IF NOT EXISTS class_categories (
     cat_id  INTEGER PRIMARY KEY AUTOINCREMENT,
-    name    TEXT NOT NULL UNIQUE     -- Yoga, Pilates, Functional, Aerobics, Martial, Swim
+    name    TEXT NOT NULL UNIQUE    
 );
 
 CREATE TABLE IF NOT EXISTS group_classes (
@@ -101,7 +87,7 @@ CREATE TABLE IF NOT EXISTS group_classes (
     trainer_id  INTEGER NOT NULL,
     room_id     INTEGER NOT NULL,
     title       TEXT NOT NULL,
-    start_time  TEXT NOT NULL,                 -- ISO-8601
+    start_time  TEXT NOT NULL,                 
     end_time    TEXT NOT NULL,
     capacity    INTEGER NOT NULL DEFAULT 20,
     FOREIGN KEY (cat_id)     REFERENCES class_categories(cat_id) ON DELETE RESTRICT,
@@ -113,7 +99,7 @@ CREATE INDEX IF NOT EXISTS idx_class_start ON group_classes(start_time);
 CREATE TABLE IF NOT EXISTS class_bookings (
     class_id   INTEGER NOT NULL,
     client_id  INTEGER NOT NULL,
-    status     TEXT NOT NULL DEFAULT 'booked'  -- booked|attended|no_show|cancelled
+    status     TEXT NOT NULL DEFAULT 'booked'  
                 CHECK (status IN ('booked','attended','no_show','cancelled')),
     booked_at  TEXT NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY (class_id, client_id),
@@ -121,46 +107,37 @@ CREATE TABLE IF NOT EXISTS class_bookings (
     FOREIGN KEY (client_id) REFERENCES users(user_id)          ON DELETE CASCADE
 );
 
-------------------------------------------------------------------------------
--- 5. PERSONAL TRAININGS
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS personal_trainings (
     pt_id       INTEGER PRIMARY KEY AUTOINCREMENT,
     trainer_id  INTEGER NOT NULL,
     client_id   INTEGER NOT NULL,
     datetime    TEXT NOT NULL,
     duration_min INTEGER NOT NULL DEFAULT 60,
-    status      TEXT NOT NULL DEFAULT 'booked'   -- booked|done|cancelled
+    status      TEXT NOT NULL DEFAULT 'booked'  
                  CHECK (status IN ('booked','done','cancelled')),
     notes       TEXT,
     FOREIGN KEY (trainer_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (client_id)  REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-------------------------------------------------------------------------------
--- 6. ACCESS CONTROL (SKUD)
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS visit_logs (
     log_id        INTEGER PRIMARY KEY AUTOINCREMENT,
     client_id     INTEGER NOT NULL,
     sub_id        INTEGER,
     timestamp     TEXT NOT NULL DEFAULT (datetime('now')),
-    event_type    INTEGER NOT NULL,            -- 1=attempt, 0=allowed, -1=denied
+    event_type    INTEGER NOT NULL,            
     turnstile_id  TEXT,
     FOREIGN KEY (client_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (sub_id)    REFERENCES subscriptions(sub_id) ON DELETE SET NULL
 );
 CREATE INDEX IF NOT EXISTS idx_visit_ts ON visit_logs(timestamp);
 
-------------------------------------------------------------------------------
--- 7. EQUIPMENT & MAINTENANCE
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS equipment (
     eq_id              INTEGER PRIMARY KEY AUTOINCREMENT,
     name               TEXT NOT NULL,
     quantity           INTEGER NOT NULL DEFAULT 1,
     last_maintenance   TEXT,
-    status             TEXT NOT NULL DEFAULT 'ok'   -- ok|fault|maintenance
+    status             TEXT NOT NULL DEFAULT 'ok'   
                         CHECK (status IN ('ok','fault','maintenance'))
 );
 
@@ -170,16 +147,13 @@ CREATE TABLE IF NOT EXISTS maintenance_records (
     reported_by   INTEGER NOT NULL,
     description   TEXT NOT NULL,
     photo_path    TEXT,
-    critical      INTEGER NOT NULL DEFAULT 0,   -- boolean
+    critical      INTEGER NOT NULL DEFAULT 0,  
     reported_at   TEXT NOT NULL DEFAULT (datetime('now')),
     resolved_at   TEXT,
     FOREIGN KEY (eq_id)       REFERENCES equipment(eq_id)  ON DELETE CASCADE,
     FOREIGN KEY (reported_by) REFERENCES users(user_id)    ON DELETE CASCADE
 );
 
-------------------------------------------------------------------------------
--- 8. VIDEO TRAININGS (additional feature)
-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS video_categories (
     vcat_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name    TEXT NOT NULL UNIQUE
@@ -213,7 +187,7 @@ CREATE TABLE IF NOT EXISTS comments (
     comment_id        INTEGER PRIMARY KEY AUTOINCREMENT,
     video_id          INTEGER NOT NULL,
     user_id           INTEGER NOT NULL,
-    parent_comment_id INTEGER,                    -- self-FK for replies
+    parent_comment_id INTEGER,                    
     text              TEXT NOT NULL,
     created_at        TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (video_id)          REFERENCES videos(video_id)     ON DELETE CASCADE,
